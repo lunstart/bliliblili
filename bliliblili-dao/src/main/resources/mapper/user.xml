@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bliliblili.dao.UserDao">
+
+    <update id="updateUsers" parameterType="com.bliliblili.domain.entity.User">
+        update
+            t_user
+        set
+            <if test="phone != null and phone != '' ">
+                phone = #{phone},
+            </if>
+            <if test="email != null and email != '' ">
+            email = #{email},
+            </if>
+            <if test="password != null and password != '' ">
+                password = #{password},
+            </if>
+                update_time = #{updateTime}
+            where
+                id = #{id}
+    </update>
+
+    <update id="updateUserInfos" parameterType="com.bliliblili.domain.entity.UserInfo">
+        update
+        t_user_info
+        set
+        <if test="nick != null and nick != '' ">
+            nick = #{nick},
+        </if>
+        <if test="avatar != null and avatar != '' ">
+            avatar = #{avatar},
+        </if>
+        <if test="sign != null">
+            sign = #{sign},
+        </if>
+        <if test="gender != null and gender != '' ">
+            gender = #{gender},
+        </if>
+        <if test="birth != null and birth != '' ">
+            birth = #{birth},
+        </if>
+            update_time = #{updateTime}
+        where
+                user_id = #{userId}
+    </update>
+
+
+    <select id="getUserByPhone" parameterType="java.lang.String" resultType="com.bliliblili.domain.entity.User">
+        select
+            *
+        from
+            t_user
+        where
+            phone = #{phone}
+    </select>
+
+    <insert id="addUser" parameterType="com.bliliblili.domain.entity.User">
+        insert into
+            t_user(
+                   phone, email, password, salt, create_time, update_time
+        ) VALUES (
+                    #{phone},#{email},#{password},#{salt},#{createTime},#{updateTime}
+                    )
+    </insert>
+
+
+    <insert id="addUserInfo" parameterType="com.bliliblili.domain.entity.UserInfo">
+        insert into
+            t_user_info(
+                        user_id, nick, avatar, sign, gender, birth, create_time
+        ) VALUES (
+                             #{userId},#{nick},#{avatar},#{sign},#{gender},#{birth},#{createTime}
+                         )
+    </insert>
+
+    <select id="getUserById" resultType="com.bliliblili.domain.entity.User">
+        select
+            *
+        from t_user
+        where
+            id = #{id}
+    </select>
+
+    <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="com.bliliblili.domain.entity.UserInfo">
+        select
+            *
+        from t_user_info
+        where user_id = #{userId}
+    </select>
+
+    <select id="getUserByAccount" parameterType="java.lang.String" resultType="com.bliliblili.domain.entity.User">
+        select
+            *
+        from t_user
+        where phone = #{account} or email = #{account}
+    </select>
+
+    <select id="getUserinfosByUserIds" parameterType="java.util.Set" resultType="com.bliliblili.domain.entity.UserInfo">
+        select
+            *
+        from t_user_info
+        where
+            1=1
+            <if test="userIdList != null and  userIdList.size >0">
+                and user_id in
+        <foreach collection="userIdList" item="userId" index="index" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+            </if>
+    </select>
+
+    <select id="pageCountUsrInfos" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_user_info
+        where
+            1=1
+        <if test="nick != null and nick != ''">
+            and nick like  '%${nick}%'
+        </if>
+    </select>
+
+    <select id="pageListUserInfos" parameterType="java.util.Map" resultType="com.bliliblili.domain.entity.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            1=1
+        <if test="nick != null and nick != ''">
+            and nick like  '%${nick}%'
+        </if>
+        order by id desc
+        limit = #{start} ,#{limit}
+    </select>
+</mapper>
