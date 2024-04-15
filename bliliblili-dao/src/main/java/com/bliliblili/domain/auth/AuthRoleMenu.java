@@ -22,4 +22,7 @@ public class AuthRoleMenu {
 
     //创建时间
     private LocalDateTime createTime;
+
+    //权限控制页面访问
+    private AuthMenu authMenu;
 }

@@ -23,4 +23,10 @@ public class UserRole {
 
     // 创建时间
     private LocalDateTime createTime;
+
+    //角色名称
+    private String roleName;
+
+    //角色编码
+    private String roleCode;
 }

@@ -22,4 +22,7 @@ public class AuthRoleElementOperation {
 
     // 创建时间
     private LocalDateTime createTime;
+
+    //权限控制页面元素操作
+    private AuthElementOperation authElementOperation;
 }

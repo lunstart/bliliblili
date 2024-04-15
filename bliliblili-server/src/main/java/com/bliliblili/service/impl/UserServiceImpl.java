@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
         String password = user.getPassword();
         //System.out.println(password);
         //解密密码
-        String rawPassword;
+        String rawPassword = null;
         try {
             rawPassword = RSAUtil.decrypt(password);
         } catch (Exception e) {

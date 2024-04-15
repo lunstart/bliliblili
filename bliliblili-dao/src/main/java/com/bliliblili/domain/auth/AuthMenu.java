@@ -26,4 +26,5 @@ public class AuthMenu {
 
     //更新时间
     private LocalDateTime updateTime;
+
 }
