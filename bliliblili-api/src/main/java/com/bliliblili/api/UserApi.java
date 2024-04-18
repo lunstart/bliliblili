@@ -1,24 +1,20 @@
 package com.bliliblili.api;
 
 import com.alibaba.fastjson.JSONObject;
-import com.bliliblili.domain.entity.UserFollowing;
 import com.bliliblili.domain.entity.UserInfo;
 import com.bliliblili.domain.jsonresponse.JsonResponse;
 import com.bliliblili.domain.entity.User;
 import com.bliliblili.domain.dto.LoginUserDTO;
 import com.bliliblili.domain.dto.RegisterUserDTO;
 import com.bliliblili.domain.jsonresponse.PageResult;
-import com.bliliblili.domain.vo.UserFollowingVO;
-import com.bliliblili.domain.vo.UserInfoVO;
 import com.bliliblili.service.UserFollowingService;
 import com.bliliblili.service.UserService;
 import com.bliliblili.service.util.RSAUtil;
-import com.bliliblili.support.UserSupport;
+import com.bliliblili.api.support.UserSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jackson.JsonObjectDeserializer;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

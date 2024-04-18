@@ -3,6 +3,8 @@ package com.bliliblili.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.bliliblili.dao.UserMomentsDao;
+import com.bliliblili.domain.annotation.ApiLimitedRole;
+import com.bliliblili.domain.constant.AuthRoleConstant;
 import com.bliliblili.domain.constant.UserMomentsConstant;
 import com.bliliblili.domain.entity.UserMoments;
 import com.bliliblili.service.UserMomentService;
@@ -41,6 +43,7 @@ public class UserMomentServiceImpl implements UserMomentService {
      *
      * @param userMoments
      */
+
     public void addUserMoments(UserMoments userMoments) throws Exception {
         userMoments.setCreateTime(LocalDateTime.now());
         userMomentsDao.addUserMoments(userMoments);

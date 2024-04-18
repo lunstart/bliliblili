@@ -3,7 +3,7 @@ package com.bliliblili.api;
 import com.bliliblili.domain.jsonresponse.JsonResponse;
 import com.bliliblili.domain.vo.UserAuthoritiesVO;
 import com.bliliblili.service.UserAuthService;
-import com.bliliblili.support.UserSupport;
+import com.bliliblili.api.support.UserSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

@@ -1,9 +1,12 @@
 package com.bliliblili.api;
 
+import com.bliliblili.domain.annotation.ApiLimitedRole;
+import com.bliliblili.domain.annotation.DataLimited;
+import com.bliliblili.domain.constant.AuthRoleConstant;
 import com.bliliblili.domain.entity.UserMoments;
 import com.bliliblili.domain.jsonresponse.JsonResponse;
 import com.bliliblili.service.UserMomentService;
-import com.bliliblili.support.UserSupport;
+import com.bliliblili.api.support.UserSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,8 @@ public class UserMomentsApi {
     @Autowired
     private UserSupport userSupport;
 
+    @ApiLimitedRole(limitedRoleCodeList = {AuthRoleConstant.ROLE_LV0})
+    @DataLimited()
     @PostMapping("/user-moments")
     @ApiOperation("新增动态")
     public JsonResponse<String> addUserMoments(@RequestBody UserMoments userMoments) throws Exception {

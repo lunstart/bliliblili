@@ -1,4 +1,4 @@
-package com.bliliblili.support;
+package com.bliliblili.api.support;
 
 import com.bliliblili.service.exception.ConditionException;
 import com.bliliblili.service.util.TokenUtil;
