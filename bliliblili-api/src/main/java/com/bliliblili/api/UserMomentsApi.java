@@ -34,7 +34,7 @@ public class UserMomentsApi {
     private UserSupport userSupport;
 
     @ApiLimitedRole(limitedRoleCodeList = {AuthRoleConstant.ROLE_LV0})
-    @DataLimited()
+    @DataLimited
     @PostMapping("/user-moments")
     @ApiOperation("新增动态")
     public JsonResponse<String> addUserMoments(@RequestBody UserMoments userMoments) throws Exception {
