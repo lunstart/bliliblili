@@ -12,8 +12,16 @@ import java.util.List;
 public interface UserRoleService {
     /**
      * 根据用户id查询用户权限角色
+     *
      * @param userId
      * @return
      */
     List<UserRole> getUserRoleByUserId(Long userId);
+
+    /**
+     * 添加用户权限角色
+     *
+     * @param userRole
+     */
+    void addUserRole(UserRole userRole);
 }

@@ -1,5 +1,6 @@
 package com.bliliblili.domain.auth;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
  * @ 注释 用户角色关联
  */
 @Data
+@Builder
 public class UserRole {
 
     // 主键

@@ -44,7 +44,6 @@
                 user_id = #{userId}
     </update>
 
-
     <select id="getUserByPhone" parameterType="java.lang.String" resultType="com.bliliblili.domain.entity.User">
         select
             *
@@ -134,4 +133,28 @@
         order by id desc
         limit = #{start} ,#{limit}
     </select>
+
+    <delete id="deleteRefreshToken">
+        delete from
+            t_refresh_token
+        where
+            user_id = #{userId}
+    </delete>
+
+    <insert id="addRefreshToken">
+        insert into
+            t_refresh_token
+                (user_id, refresh_token, create_time)
+            values
+                (#{userId}, #{refreshToken}, #{createTime})
+    </insert>
+
+    <select id="getRefreshToken" parameterType="java.lang.String" resultType="com.bliliblili.domain.entity.RefreshTokenDetail">
+        select
+            *
+        from
+            t_refresh_token
+        where refresh_token = #{refreshToken}
+    </select>
+
 </mapper>

@@ -1,8 +1,10 @@
 package com.bliliblili.service.impl;
 
+import com.bliliblili.domain.auth.AuthRole;
 import com.bliliblili.domain.auth.AuthRoleElementOperation;
 import com.bliliblili.domain.auth.AuthRoleMenu;
 import com.bliliblili.domain.auth.UserRole;
+import com.bliliblili.domain.constant.AuthRoleConstant;
 import com.bliliblili.domain.vo.UserAuthoritiesVO;
 import com.bliliblili.service.AuthRoleService;
 import com.bliliblili.service.UserAuthService;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,5 +47,15 @@ public class UserAuthServiceImpl implements UserAuthService {
         userAuthoritiesVO.setRoleElementOperationList(authRoleElementOperations);
         userAuthoritiesVO.setRoleMenuList(authRoleMenus);
         return userAuthoritiesVO;
+    }
+
+    public void addUserDefaultRole(Long id) {
+        AuthRole role = authRoleService.getRoleByCode(AuthRoleConstant.ROLE_LV0);
+        UserRole userRole = UserRole.builder()
+                .roleId(role.getId())
+                .userId(id)
+                .createTime(LocalDateTime.now())
+                .build();
+        userRoleService.addUserRole(userRole);
     }
 }

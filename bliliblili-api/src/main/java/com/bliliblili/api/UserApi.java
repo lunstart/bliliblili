@@ -17,7 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ author 星星草去哪了
@@ -152,5 +155,44 @@ public class UserApi {
         return new JsonResponse<>(result);
     }
 
+    /**
+     * 用户登录用户双token
+     *
+     * @param loginUserDTO
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/user-dts")
+    @ApiOperation("用户登录用户双token")
+    public JsonResponse<Map<String, Object>> loginForDts(@RequestBody LoginUserDTO loginUserDTO) throws Exception {
+        log.info("用户登录:{}", loginUserDTO.getPhone() != null ? loginUserDTO.getPhone() : loginUserDTO.getEmail());
+        Map<String, Object> map = userService.loginForDts(loginUserDTO);
+        return new JsonResponse<>(map);
+    }
+
+    /**
+     * 退出登录
+     *
+     * @param request
+     * @return
+     */
+    @DeleteMapping("/refresh-tokens")
+    @ApiOperation("退出登录")
+    public JsonResponse<String> logout(HttpServletRequest request) {
+        Long userId = userSupport.getCurrentUserId();
+        log.info("用户退出:{}", userId);
+        String refreshToken = request.getHeader("refreshToken");
+        userService.logout(refreshToken, userId);
+        return JsonResponse.success();
+    }
+
+    @PostMapping("/access-tokens")
+    @ApiOperation("刷新token")
+    public JsonResponse<String> refreshAccessToken(HttpServletRequest request) throws Exception {
+        log.info("用户token刷新:{}");
+        String refreshToken = request.getHeader("refreshToken");
+        String AccessToken = userService.refreshAccessToken(refreshToken);
+        return new JsonResponse<>(AccessToken);
+    }
 }
 

@@ -28,4 +28,9 @@ public class UserRoleServiceImpl implements UserRoleService {
     public List<UserRole> getUserRoleByUserId(Long userId) {
         return userRoleDao.getUserRoleByUserId(userId);
     }
+
+
+    public void addUserRole(UserRole userRole) {
+        userRoleDao.addUserRole(userRole);
+    }
 }

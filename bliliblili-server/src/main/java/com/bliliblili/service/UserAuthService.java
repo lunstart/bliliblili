@@ -15,4 +15,11 @@ public interface UserAuthService {
      * @return
      */
     UserAuthoritiesVO getUserAuthorities(Long userId);
+
+    /**
+     * 新增默认权限角色
+     *
+     * @param id
+     */
+    void addUserDefaultRole(Long id);
 }

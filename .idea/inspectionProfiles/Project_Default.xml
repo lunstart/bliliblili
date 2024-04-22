@@ -68,6 +68,7 @@
       <option name="customHeaders">
         <set>
           <option value="token" />
+          <option value="refreshToken" />
         </set>
       </option>
     </inspection_tool>

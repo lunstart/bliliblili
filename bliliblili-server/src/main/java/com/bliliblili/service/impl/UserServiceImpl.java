@@ -1,12 +1,15 @@
 package com.bliliblili.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bliliblili.domain.entity.RefreshTokenDetail;
 import com.bliliblili.domain.entity.User;
 import com.bliliblili.domain.jsonresponse.PageResult;
 import com.bliliblili.domain.constant.UserConstant;
 import com.bliliblili.domain.entity.UserInfo;
 import com.bliliblili.domain.dto.LoginUserDTO;
 import com.bliliblili.domain.dto.RegisterUserDTO;
+import com.bliliblili.service.UserAuthService;
+import com.bliliblili.service.UserRoleService;
 import com.bliliblili.service.UserService;
 import com.bliliblili.service.util.MD5Util;
 import com.bliliblili.service.util.RSAUtil;
@@ -19,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @ author 星星草去哪了
@@ -34,6 +34,9 @@ import java.util.Set;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private UserAuthService userAuthService;
 
     /**
      * 添加用户
@@ -69,16 +72,18 @@ public class UserServiceImpl implements UserService {
         userDao.addUser(user);
 
         user = userDao.getUserByPhone(phone);
+
         //添加用户信息
         UserInfo userInfo = new UserInfo();
-        //System.out.println(user.getId());
         userInfo.setUserId(user.getId());
         userInfo.setNick(UserConstant.DEFAULT_NICK);
         userInfo.setGender(UserConstant.GENDER_MALE);
         userInfo.setBirth(UserConstant.DEFAULT_BIRTH);
-        //userInfo.setAvatar();
         userInfo.setCreateTime(user.getCreateTime());
         userDao.addUserInfo(userInfo);
+
+        //新增默认权限角色
+        userAuthService.addUserDefaultRole(user.getId());
     }
 
     /**
@@ -205,5 +210,61 @@ public class UserServiceImpl implements UserService {
             list = userDao.pageListUserInfos(params);
         }
         return new PageResult<>(total,list);
+    }
+
+
+    public Map<String, Object> loginForDts(LoginUserDTO user) throws Exception {
+        String email = user.getEmail() == null ? "" : user.getEmail();
+        String phone = user.getPhone() == null ? "" : user.getPhone();
+        if (StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)) {
+            throw new ConditionException("账号不能为空!");
+        }
+        String account = email + phone;
+        //User dbUser = userDao.getUserByPhone(phone);
+        User dbUser = userDao.getUserByAccount(account);
+        if (dbUser == null) {
+            throw new ConditionException("用户未注册!");
+        }
+        //rsa加密密码
+        String password = user.getPassword();
+        //System.out.println(password);
+        //解密密码
+        String rawPassword = null;
+        try {
+            rawPassword = RSAUtil.decrypt(password);
+        } catch (Exception e) {
+            throw new ConditionException("密码解密失败!");
+        }
+        //进行md5加密
+        String salt = dbUser.getSalt();
+        String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
+        if(!md5Password.equals(dbUser.getPassword())){
+            throw new ConditionException("密码错误!");
+        }
+        Long userId = dbUser.getId();
+        String accessToken =  TokenUtil.generateToken(userId);
+        String refreshToken = TokenUtil.generateRefreshToken(userId);
+        //保存refreshToken 保存数据库
+        userDao.deleteRefreshToken(refreshToken,userId);
+        userDao.addRefreshToken(refreshToken,userId,LocalDateTime.now());
+        Map<String,Object> result = new HashMap<>();
+        result.put("accessToken",accessToken);
+        result.put("refreshToken",refreshToken);
+        return result;
+    }
+
+
+    public void logout(String refreshToken, Long userId) {
+        userDao.deleteRefreshToken(refreshToken,userId);
+    }
+
+
+    public String refreshAccessToken(String refreshToken) throws Exception {
+        RefreshTokenDetail refreshTokenDetail = userDao.getRefreshToken(refreshToken);
+        if(refreshTokenDetail == null){
+            throw new ConditionException("555","token过期!");
+        }
+        Long userId = refreshTokenDetail.getUserId();
+        return TokenUtil.generateToken(userId);
     }
 }
