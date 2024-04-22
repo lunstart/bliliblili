@@ -1,9 +1,7 @@
 package com.bliliblili.service.impl;
 
-import com.bliliblili.domain.auth.AuthElementOperation;
-import com.bliliblili.domain.auth.AuthMenu;
-import com.bliliblili.domain.auth.AuthRoleElementOperation;
-import com.bliliblili.domain.auth.AuthRoleMenu;
+import com.bliliblili.dao.AuthRoleDao;
+import com.bliliblili.domain.auth.*;
 import com.bliliblili.service.AuthElementOperationService;
 import com.bliliblili.service.AuthRoleMenuService;
 import com.bliliblili.service.AuthRoleService;
@@ -20,6 +18,9 @@ import java.util.Set;
  */
 @Service
 public class AuthRoleServiceImpl implements AuthRoleService {
+    @Autowired
+    private AuthRoleDao authRoleDao;
+
     @Autowired
     private AuthElementOperationService authElementOperationService;
 
@@ -43,5 +44,10 @@ public class AuthRoleServiceImpl implements AuthRoleService {
      */
     public List<AuthRoleMenu> getAuthRoleMenusByRoleIds(Set<Long> roleIdSet) {
         return authRoleMenuService.getAuthRoleMenusByRoleIds(roleIdSet);
+    }
+
+
+    public AuthRole getRoleByCode(String code) {
+        return authRoleDao.getRoleByCode(code);
     }
 }

@@ -1,10 +1,13 @@
 package com.bliliblili.dao;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bliliblili.domain.entity.RefreshTokenDetail;
 import com.bliliblili.domain.entity.User;
 import com.bliliblili.domain.entity.UserInfo;
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,4 +36,10 @@ public interface UserDao {
     Integer pageCountUsrInfos(Map<String, Object> params);
 
     List<UserInfo> pageListUserInfos(Map<String, Object> params);
+
+    Integer deleteRefreshToken(String refreshToken, Long userId);
+
+    Integer addRefreshToken(String refreshToken, Long userId, LocalDateTime createTime);
+
+    RefreshTokenDetail getRefreshToken(String refreshToken);
 }

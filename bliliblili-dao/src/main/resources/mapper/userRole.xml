@@ -13,4 +13,12 @@
         where
             ur.user_id = #{userId}
     </select>
+
+    <insert id="addUserRole">
+        insert into
+            t_user_role
+            (user_id, role_id,create_time)
+        values
+            (#{userId}, #{roleId},#{createTime})
+    </insert>
 </mapper>

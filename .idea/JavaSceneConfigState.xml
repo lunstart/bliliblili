@@ -2,6 +2,6 @@
 <project version="4">
   <component name="SmartInputSourceJavaSceneConfigState">
     <option name="finalVariableCapitalScene" value="{&quot;capsLockState&quot;:true,&quot;code&quot;:&quot;finalVariableUpper&quot;,&quot;enable&quot;:true,&quot;languageType&quot;:&quot;ENGLISH&quot;,&quot;name&quot;:&quot;不可变常量&quot;,&quot;tip&quot;:&quot;光标处于不可变常量定义时切换为大写&quot;}" />
-    <option name="customChineseScenes" value="{&quot;capsLockState&quot;:false,&quot;code&quot;:&quot;msg;ConditionException(name);info(s);Api(tags);println(x);ApiOperation()&quot;,&quot;enable&quot;:true,&quot;languageType&quot;:&quot;CHINESE&quot;,&quot;name&quot;:&quot;自定义中文切换&quot;,&quot;tip&quot;:&quot;&quot;}" />
+    <option name="customChineseScenes" value="{&quot;capsLockState&quot;:false,&quot;code&quot;:&quot;msg;ConditionException(name);Api(tags);info(s);ApiOperation()&quot;,&quot;enable&quot;:true,&quot;languageType&quot;:&quot;CHINESE&quot;,&quot;name&quot;:&quot;自定义中文切换&quot;,&quot;tip&quot;:&quot;&quot;}" />
   </component>
 </project>

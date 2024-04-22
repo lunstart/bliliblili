@@ -8,6 +8,7 @@ import com.bliliblili.domain.entity.UserInfo;
 import com.bliliblili.domain.jsonresponse.PageResult;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -80,4 +81,28 @@ public interface UserService {
      * @return
      */
     PageResult<UserInfo> pageListUserInfos(JSONObject params);
+
+    /**
+     * 用户登录 双token
+     *
+     * @param user
+     * @return
+     */
+    Map<String, Object> loginForDts(LoginUserDTO user) throws Exception;
+
+    /**
+     * 退出登录
+     *
+     * @param refreshToken
+     * @param userId
+     */
+    void logout(String refreshToken, Long userId);
+
+    /**
+     * 刷新token
+     *
+     * @param refreshToken
+     * @return
+     */
+    String refreshAccessToken(String refreshToken) throws Exception;
 }

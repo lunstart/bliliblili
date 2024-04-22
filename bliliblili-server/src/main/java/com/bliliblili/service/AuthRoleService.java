@@ -1,5 +1,6 @@
 package com.bliliblili.service;
 
+import com.bliliblili.domain.auth.AuthRole;
 import com.bliliblili.domain.auth.AuthRoleElementOperation;
 import com.bliliblili.domain.auth.AuthRoleMenu;
 
@@ -24,8 +25,17 @@ public interface AuthRoleService {
 
     /**
      * 获取控制角色页面菜单权限
+     *
      * @param roleIdSet
      * @return
      */
     List<AuthRoleMenu> getAuthRoleMenusByRoleIds(Set<Long> roleIdSet);
+
+    /**
+     * 根据角色code获取角色
+     *
+     * @param roleLv0
+     * @return
+     */
+    AuthRole getRoleByCode(String roleLv0);
 }
