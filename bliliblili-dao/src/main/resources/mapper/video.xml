@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bliliblili.dao.VideoDao">
+
+    <insert id="addVideos" parameterType="com.bliliblili.domain.entity.Video" useGeneratedKeys="true" keyProperty="id">
+        insert into t_video
+        (user_id, url, thumbnail, title, type, duration, area, description, create_time, update_time)
+        values (#{userId}, #{url}, #{thumbnail}, #{title}, #{type}, #{duration}, #{area}, #{description}, #{createTime},
+                #{updateTime})
+    </insert>
+
+    <insert id="batchAddVideoTags" parameterType="java.util.List">
+        insert into
+        t_video_tag
+        (video_id, tag_id, create_time)
+        values
+        <foreach collection="videoTagList" item="videoTag" separator=",">
+            (#{videoTag.videoId}, #{videoTag.tagId}, #{videoTag.createTime})
+        </foreach>
+
+    </insert>
+
+    <select id="pageCountVideos" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+        count(1)
+        from t_video
+        where 1 = 1
+        <if test="area!= null and area != ''">
+            and area = #{area}
+        </if>
+    </select>
+
+    <select id="pageListVideos" parameterType="java.util.Map" resultType="com.bliliblili.domain.entity.Video">
+        select
+        *
+        from t_video
+        where 1 = 1
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+        order by id desc
+        limit #{start},#{limit}
+    </select>
+
+    <select id="getVideoById" parameterType="java.lang.Long" resultType="com.bliliblili.domain.entity.Video">
+        select *
+        from t_video
+        where id = #{id}
+    </select>
+
+    <insert id="addVideoLike" parameterType="com.bliliblili.domain.entity.VideoLike">
+        insert into t_video_like
+            (user_id, video_id, create_time)
+        values (#{userId}, #{videoId}, #{createTime})
+    </insert>
+
+    <delete id="deleteVideoLike">
+        delete
+        from t_video_like
+        where video_id = #{videoId}
+          and user_id = #{userId}
+    </delete>
+
+    <select id="getVideoLikes" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select count(1)
+        from t_video_like
+        where video_id = #{videoId}
+    </select>
+
+    <select id="getVideoLikeByVideoIdAndUserId" resultType="com.bliliblili.domain.entity.VideoLike">
+        select *
+        from t_video_like
+        where video_id = #{videoId}
+          and user_id = #{userId}
+    </select>
+
+    <insert id="addVideoCollection" parameterType="com.bliliblili.domain.dto.VideoCollectionDTO">
+        insert into t_video_collection
+            (user_id, video_id, group_id, create_time)
+        values (#{userId}, #{videoId}, #{groupId}, #{createTime})
+    </insert>
+
+    <delete id="deleteVideoCollection">
+        delete
+        from t_video_collection
+        where video_id = #{videoId}
+          and user_id = #{userId}
+    </delete>
+
+    <select id="getVideoCollections" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select count(1)
+        from t_video_collection
+        where video_id = #{videoId}
+    </select>
+
+
+    <select id="getVideoCollectionByVideoIdAndUserId" resultType="com.bliliblili.domain.dto.VideoCollectionDTO">
+        select *
+        from t_video_collection
+        where video_id = #{videoId}
+          and user_id = #{userId}
+    </select>
+
+    <select id="getVideoCoinByVideoIdAndUserId" resultType="com.bliliblili.domain.entity.VideoCoin">
+        select *
+        from t_video_coin
+        where video_id = #{videoId}
+          and user_id = #{userId}
+    </select>
+
+    <insert id="addVideoCoin" parameterType="com.bliliblili.domain.entity.VideoCoin">
+        insert into t_video_coin(user_id,
+                                 video_id,
+                                 amount,
+                                 create_time)
+        values (#{userId},
+                #{videoId},
+                #{amount},
+                #{createTime})
+    </insert>
+
+    <update id="updateVideoCoin" parameterType="com.bliliblili.domain.entity.VideoCoin">
+        update
+            t_video_coin
+        set amount      = #{amount},
+            update_time = #{updateTime}
+        where video_id = #{videoId}
+          and user_id = #{userId}
+    </update>
+
+    <select id="getVideoCoinsAmount" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select sum(amount)
+        from t_video_coin
+        where video_id = #{videoId}
+    </select>
+
+    <insert id="addVideoComment" parameterType="com.bliliblili.domain.entity.VideoComment">
+        insert into t_video_comment
+            (video_id, user_id, comment, reply_user_id, root_id, create_time)
+        values (#{videoId}, #{userId}, #{comment}, #{replyUserId}, #{rootId}, #{createTime})
+    </insert>
+
+
+    <select id="getVideoDetails" parameterType="java.lang.Long" resultType="com.bliliblili.domain.entity.Video">
+        select *
+        from t_video
+        where id = #{videoId}
+    </select>
+
+    <select id="pageCountVideoComments" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(1)
+        from t_video_comment
+        where video_id = #{videoId}
+          and root_id is null
+    </select>
+
+    <select id="pageListVideoComments" parameterType="java.util.Map"
+            resultType="com.bliliblili.domain.entity.VideoComment">
+        select *
+        from t_video_comment
+        where video_id = #{videoId}
+          and root_id is null
+        order by id desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="batchGetVideoCommentsByRootIds" parameterType="java.util.List"
+            resultType="com.bliliblili.domain.entity.VideoComment">
+        select
+        *
+        from
+        t_video_comment
+        where
+        root_id in
+        <foreach collection="rootIdList" item="rootId" open="(" close=")" separator=",">
+            #{rootId}
+        </foreach>
+        order by id
+    </select>
+
+    <select id="getVideoView" parameterType="java.util.Map" resultType="com.bliliblili.domain.entity.VideoView">
+        select
+        *
+        from t_video_view
+        where
+        video_id = #{videoId}
+        <if test="userId == null and clientId != null">
+            and client_id = #{clientId} and user_id is null
+        </if>
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="ip != null and ip != '' ">
+            and ip = #{ip}
+        </if>
+        <if test="today != null and today != '' ">
+            and DATE_FORMAT(create_time,'%Y-%m-%d') = #{today}
+        </if>
+    </select>
+
+    <insert id="addVideoView" parameterType="com.bliliblili.domain.entity.VideoView">
+        insert into t_video_view
+            (video_id, user_id, client_id, ip, create_time)
+        VALUES (#{videoId}, #{userId}, #{clientId}, #{ip}, #{createTime})
+    </insert>
+
+    <select id="getVideoViewCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(1)
+        from t_video_view
+        where video_id = #{videoId}
+    </select>
+</mapper>

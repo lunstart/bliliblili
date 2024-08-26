@@ -107,8 +107,8 @@ public class UserApi {
     @PostMapping("user")
     @ApiOperation("用户信息更新")
     public JsonResponse<String> updateUser(@RequestBody User user) throws Exception {
-        Long userId = user.getId();
-        //Long userId = userSupport.getCurrentUserId();
+        //Long userId = user.getId();
+        Long userId = userSupport.getCurrentUserId();
         log.info("用户信息更新：{}", userId);
         user.setId(userId);
         userService.updateUser(user);
@@ -124,8 +124,8 @@ public class UserApi {
     @PostMapping("/user-infos")
     @ApiOperation("用户其他相关信息更新")
     public JsonResponse<String> updateUserInfos(@RequestBody UserInfo userInfo) {
-        Long userId = userInfo.getUserId();
-        //Long userId = userSupport.getCurrentUserId();
+        //Long userId = userInfo.getUserId();
+        Long userId = userSupport.getCurrentUserId();
         log.info("用户其他相关信息更新：{}", userId);
         userInfo.setUserId(userId);
         userService.updateUserInfos(userInfo);

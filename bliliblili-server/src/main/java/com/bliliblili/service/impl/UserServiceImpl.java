@@ -1,14 +1,14 @@
 package com.bliliblili.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.bliliblili.domain.entity.RefreshTokenDetail;
-import com.bliliblili.domain.entity.User;
+import com.bliliblili.domain.constant.UserCoinAmount;
+import com.bliliblili.domain.entity.*;
 import com.bliliblili.domain.jsonresponse.PageResult;
 import com.bliliblili.domain.constant.UserConstant;
-import com.bliliblili.domain.entity.UserInfo;
 import com.bliliblili.domain.dto.LoginUserDTO;
 import com.bliliblili.domain.dto.RegisterUserDTO;
 import com.bliliblili.service.UserAuthService;
+import com.bliliblili.service.UserCoinService;
 import com.bliliblili.service.UserRoleService;
 import com.bliliblili.service.UserService;
 import com.bliliblili.service.util.MD5Util;
@@ -20,8 +20,12 @@ import com.bliliblili.service.exception.ConditionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.crypto.Data;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 /**
@@ -38,6 +42,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserAuthService userAuthService;
 
+    @Autowired
+    private UserCoinService userCoinService;
+
     /**
      * 添加用户
      *
@@ -46,7 +53,7 @@ public class UserServiceImpl implements UserService {
     public void addUser(RegisterUserDTO registerUserDTO) {
         //创建新的user,并将dto赋值给user
         User user = new User();
-        BeanUtils.copyProperties(registerUserDTO,user);
+        BeanUtils.copyProperties(registerUserDTO, user);
 
         String phone = user.getPhone();
         if (StringUtils.isNullOrEmpty(phone)) {
@@ -82,8 +89,29 @@ public class UserServiceImpl implements UserService {
         userInfo.setCreateTime(user.getCreateTime());
         userDao.addUserInfo(userInfo);
 
+        //添加登录信息
+        UserLogin userLogin = UserLogin
+                .builder()
+                .userId(user.getId())
+                .type(UserConstant.USER_LOGIN_TYPE_PC)
+                .lastLoginTime(new Date())
+                .build();
+        userDao.addUserLogin(userLogin);
+
+        //添加硬币信息
+        UserCoin userCoin = UserCoin
+                .builder()
+                .userId(user.getId())
+                .coin(UserCoinAmount.INIT_COIN)
+                .build();
+        userCoinService.addUserCoin(userCoin);
+
         //新增默认权限角色
         userAuthService.addUserDefaultRole(user.getId());
+    }
+
+    public boolean initUser(User user) {
+        return true;
     }
 
     /**
@@ -101,6 +129,7 @@ public class UserServiceImpl implements UserService {
      *
      * @return
      */
+    @Transactional
     public String login(LoginUserDTO user) throws Exception {
         String email = user.getEmail() == null ? "" : user.getEmail();
         String phone = user.getPhone() == null ? "" : user.getPhone();
@@ -126,18 +155,37 @@ public class UserServiceImpl implements UserService {
         //进行md5加密
         String salt = dbUser.getSalt();
         String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
-        if(!md5Password.equals(dbUser.getPassword())){
+        if (!md5Password.equals(dbUser.getPassword())) {
             throw new ConditionException("密码错误!");
         }
+
+        UserLogin userLogin = userDao.getUserLoginByUserId(dbUser.getId());
+        LocalDate lastLoginTime = userLogin.getLastLoginTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        if (!lastLoginTime.equals(LocalDate.now())) {
+            //每日首次登录后硬币数量增加
+            userCoinService.loginAddUserCoin(dbUser.getId(), UserCoinAmount.LOGIN_COIN);
+        }
+
+        //更新登录记录
+        UserLogin userLogin1 = UserLogin
+                .builder()
+                .userId(dbUser.getId())
+                .type(UserConstant.USER_LOGIN_TYPE_PC)
+                .lastLoginTime(new Date())
+                .build();
+        userDao.updateUserLogin(userLogin1);
+
         return TokenUtil.generateToken(dbUser.getId());
     }
 
     /**
-     *获取用户
+     * 获取用户
+     *
      * @param userId
      * @return
      */
-    public User getUserByUserId(Long userId){
+    public User getUserByUserId(Long userId) {
         User user = userDao.getUserById(userId);
         UserInfo userInfo = userDao.getUserInfoByUserId(userId);
         user.setUserInfo(userInfo);
@@ -146,6 +194,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 用户其他相关信息更新
+     *
      * @param userInfo
      */
     public void updateUserInfos(UserInfo userInfo) {
@@ -155,14 +204,15 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 更新用户信息
+     *
      * @param user
      */
     public void updateUser(User user) throws Exception {
         User dbUser = userDao.getUserById(user.getId());
-        if(dbUser == null){
+        if (dbUser == null) {
             throw new ConditionException("用户不存在");
         }
-        if(!StringUtils.isNullOrEmpty(user.getPassword())){
+        if (!StringUtils.isNullOrEmpty(user.getPassword())) {
             String rsaPassword = RSAUtil.decrypt(user.getPassword());
             String md5Password = MD5Util.sign(rsaPassword, dbUser.getSalt(), "UTF-8");
             user.setPassword(md5Password);
@@ -172,7 +222,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     *
      * @param userIdList
      * @return
      */
@@ -187,6 +236,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 获取用户信息
+     *
      * @param userId
      * @return
      */
@@ -196,20 +246,21 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 获取用户列表
+     *
      * @param params
      * @return
      */
     public PageResult<UserInfo> pageListUserInfos(JSONObject params) {
         Integer num = params.getInteger("num");
         Integer size = params.getInteger("size");
-        params.put("start",(num - 1) * size);
-        params.put("limit",size);
+        params.put("start", (num - 1) * size);
+        params.put("limit", size);
         Integer total = userDao.pageCountUsrInfos(params);
         List<UserInfo> list = new ArrayList<>();
-        if(total > 0){
+        if (total > 0) {
             list = userDao.pageListUserInfos(params);
         }
-        return new PageResult<>(total,list);
+        return new PageResult<>(total, list);
     }
 
 
@@ -238,33 +289,38 @@ public class UserServiceImpl implements UserService {
         //进行md5加密
         String salt = dbUser.getSalt();
         String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
-        if(!md5Password.equals(dbUser.getPassword())){
+        if (!md5Password.equals(dbUser.getPassword())) {
             throw new ConditionException("密码错误!");
         }
         Long userId = dbUser.getId();
-        String accessToken =  TokenUtil.generateToken(userId);
+        String accessToken = TokenUtil.generateToken(userId);
         String refreshToken = TokenUtil.generateRefreshToken(userId);
         //保存refreshToken 保存数据库
-        userDao.deleteRefreshToken(refreshToken,userId);
-        userDao.addRefreshToken(refreshToken,userId,LocalDateTime.now());
-        Map<String,Object> result = new HashMap<>();
-        result.put("accessToken",accessToken);
-        result.put("refreshToken",refreshToken);
+        userDao.deleteRefreshToken(refreshToken, userId);
+        userDao.addRefreshToken(refreshToken, userId, LocalDateTime.now());
+        Map<String, Object> result = new HashMap<>();
+        result.put("accessToken", accessToken);
+        result.put("refreshToken", refreshToken);
         return result;
     }
 
 
     public void logout(String refreshToken, Long userId) {
-        userDao.deleteRefreshToken(refreshToken,userId);
+        userDao.deleteRefreshToken(refreshToken, userId);
     }
 
 
     public String refreshAccessToken(String refreshToken) throws Exception {
         RefreshTokenDetail refreshTokenDetail = userDao.getRefreshToken(refreshToken);
-        if(refreshTokenDetail == null){
-            throw new ConditionException("555","token过期!");
+        if (refreshTokenDetail == null) {
+            throw new ConditionException("555", "token过期!");
         }
         Long userId = refreshTokenDetail.getUserId();
         return TokenUtil.generateToken(userId);
     }
+
+    public List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList) {
+        return userDao.batchGetUserInfoByUserIds(userIdList);
+    }
+
 }

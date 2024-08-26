@@ -18,22 +18,30 @@ public interface UserService {
      *
      * @param registerUserDTO
      */
-    public void addUser(RegisterUserDTO registerUserDTO);
+    void addUser(RegisterUserDTO registerUserDTO);
 
     /**
-     * 获取用户
+     * 用户初始化
+     *
+     * @param user
+     * @return
+     */
+    boolean initUser(User user);
+
+    /**
+     * 获取用户信息
      *
      * @param phone
      * @return
      */
-    public User getUserByPhone(String phone);
+    User getUserByPhone(String phone);
 
     /**
      * 用户登录
      *
      * @return
      */
-    public String login(LoginUserDTO user) throws Exception;
+    String login(LoginUserDTO user) throws Exception;
 
     /**
      * 通过用户id获取用户
@@ -105,4 +113,13 @@ public interface UserService {
      * @return
      */
     String refreshAccessToken(String refreshToken) throws Exception;
+
+    /**
+     * 批量获取用户信息
+     *
+     * @param userIdList
+     * @return
+     */
+    List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList);
+
 }

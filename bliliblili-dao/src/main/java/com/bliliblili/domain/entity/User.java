@@ -27,5 +27,6 @@ public class User {
     //更新时间
     private LocalDateTime updateTime;
 
+    //用户信息(冗余字段)
     private UserInfo UserInfo;
 }

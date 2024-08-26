@@ -10,7 +10,7 @@
                 url,
                 `type`,
                 md5,
-                createTime
+                create_time
             )value(
                 #{url},
                 #{type},
@@ -18,6 +18,12 @@
                 #{createTime}
             )
     </insert>
+    <delete id="deleteFileMD5" parameterType="java.lang.String">
+        delete from
+            t_file
+        where
+            url = #{filePath}
+    </delete>
 
     <select id="getFileByMD5" parameterType="java.lang.String" resultType="com.bliliblili.domain.entity.File">
         select
@@ -26,6 +32,14 @@
             t_file
         where
             md5 = #{md5}
+    </select>
+
+    <select id="getFileNameByUrl" parameterType="java.lang.String" resultType="java.lang.String">
+        select
+            type
+        from t_file
+        where
+            url = #{url}
     </select>
 
 </mapper>

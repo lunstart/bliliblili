@@ -1,24 +1,27 @@
 package com.bliliblili.service.util;
 
+import com.bliliblili.service.FileService;
 import com.bliliblili.service.exception.ConditionException;
+import com.github.tobato.fastdfs.domain.fdfs.FileInfo;
 import com.github.tobato.fastdfs.domain.fdfs.MetaData;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.mysql.cj.util.StringUtils;
+import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @ author 星星草去哪了
@@ -37,6 +40,9 @@ public class FastDFSUtil {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+    @Autowired
+    private FileService fileService;
+
     private static final String PATH_KEY = "path-key:";
 
     private static final String UPLOADED_SIZE_KEY = "uploaded-size-key:";
@@ -46,6 +52,10 @@ public class FastDFSUtil {
     private static final String DEFAULT_GROUP = "group1";
 
     private static final int SLICE_SIZE = 1024 * 1024 * 2;
+
+
+    @Value("${fdfs.http.storage.address}")
+    private String fastDfsHttpStorageAddress;
 
     public String getFileType(MultipartFile file) {
         if (file == null) {
@@ -73,7 +83,7 @@ public class FastDFSUtil {
         Set<MetaData> mateDataSet = new HashSet<>();
         String fileType = this.getFileType(file);
         StorePath storePath = fastFileStorageClient.uploadFile(file.getInputStream(), file.getSize(), fileType, mateDataSet);
-        return storePath.getFullPath();
+        return storePath.getPath();
     }
 
     //上传可以断点续传的文件
@@ -82,7 +92,6 @@ public class FastDFSUtil {
         StorePath storePath = appendFileStorageClient.uploadAppenderFile(DEFAULT_GROUP, file.getInputStream(), file.getSize(), fileType);
         return storePath.getPath();
     }
-
 
     //追加文件
     public void modifyAppenderFile(MultipartFile file, String filePath, long offset) throws Exception {
@@ -135,6 +144,7 @@ public class FastDFSUtil {
 
     //文件删除
     public void deleteFile(String filePath) {
+        filePath = DEFAULT_GROUP +"/" + filePath;
         fastFileStorageClient.deleteFile(filePath);
     }
 
@@ -170,4 +180,41 @@ public class FastDFSUtil {
         return file;
     }
 
+    public void viewVideoOnlineBySlices(HttpServletRequest request, HttpServletResponse response, String path) throws Exception {
+        String filetype = fileService.getFileNameByUrl(path);
+
+       //查询文件信息
+        FileInfo fileInfo = fastFileStorageClient.queryFileInfo(DEFAULT_GROUP, path);
+
+        long totalFileSize = fileInfo.getFileSize();
+        String url = fastDfsHttpStorageAddress + path;
+        Enumeration<String> headerNames = request.getHeaderNames();
+        Map<String,Object> headers = new HashMap<>();
+        while (headerNames.hasMoreElements()) {
+            String header = headerNames.nextElement();
+            headers.put(header,request.getHeader(header));
+        }
+        String rangeStr = request.getHeader("Range");
+        String[] range;
+        if(StringUtil.isNullOrEmpty(rangeStr)){
+            rangeStr = "bytes=0-" + (totalFileSize-1);
+        }
+        range = rangeStr.split("bytes=|-");
+        long begin = 0;
+        if(range.length >= 2){
+            begin = Long.parseLong(range[1]);
+        }
+        long end = totalFileSize-1;
+        if(range.length >= 3){
+            end = Long.parseLong(range[2]);
+        }
+        long len = (end - begin) + 1;
+        String contentRange = "bytes " + begin + "-" + end + "/" + totalFileSize;
+        response.setHeader("Content-Range", contentRange);
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Type", "video/" + filetype);
+        response.setContentLength((int)len);
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        HttpUtil.get(url, headers,response);
+    }
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.bliliblili.domain.entity.RefreshTokenDetail;
 import com.bliliblili.domain.entity.User;
 import com.bliliblili.domain.entity.UserInfo;
+import com.bliliblili.domain.entity.UserLogin;
 import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -14,6 +15,9 @@ import java.util.Set;
 
 @Mapper
 public interface UserDao {
+    Integer updateUserLogin(UserLogin userLogin);
+
+    Integer addUserLogin(UserLogin userLogin);
 
     User getUserByPhone(String phone);
 
@@ -42,4 +46,8 @@ public interface UserDao {
     Integer addRefreshToken(String refreshToken, Long userId, LocalDateTime createTime);
 
     RefreshTokenDetail getRefreshToken(String refreshToken);
+
+    List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList);
+
+    UserLogin getUserLoginByUserId(Long userId);
 }

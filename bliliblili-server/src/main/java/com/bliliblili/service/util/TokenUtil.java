@@ -25,10 +25,11 @@ public class TokenUtil {
         Algorithm algorithm = Algorithm.RSA256(RSAUtil.getPublicKey(), RSAUtil.getPrivateKey());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.HOUR, 2);
+        //TODO 这里设置token过期时间为2小时，实际项目中可以根据需要设置
+        //calendar.add(Calendar.HOUR, 2);
         return JWT.create().withKeyId(String.valueOf(userId))
                 .withIssuer(ISSUER)
-                .withExpiresAt(calendar.getTime())
+                //.withExpiresAt(calendar.getTime())
                 .sign(algorithm);
     }
 
@@ -62,10 +63,11 @@ public class TokenUtil {
         Algorithm algorithm = Algorithm.RSA256(RSAUtil.getPublicKey(), RSAUtil.getPrivateKey());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.DAY_OF_MONTH, 7);
+        //TODO 这里设置token过期时间为7天，实际项目中可以根据需要设置
+        //calendar.add(Calendar.DAY_OF_MONTH, 7);
         return JWT.create().withKeyId(String.valueOf(userId))
                 .withIssuer(ISSUER)
-                .withExpiresAt(calendar.getTime())
+                //.withExpiresAt(calendar.getTime())
                 .sign(algorithm);
 
     }

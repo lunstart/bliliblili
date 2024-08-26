@@ -44,6 +44,7 @@
                 user_id = #{userId}
     </update>
 
+
     <select id="getUserByPhone" parameterType="java.lang.String" resultType="com.bliliblili.domain.entity.User">
         select
             *
@@ -149,12 +150,58 @@
                 (#{userId}, #{refreshToken}, #{createTime})
     </insert>
 
+
     <select id="getRefreshToken" parameterType="java.lang.String" resultType="com.bliliblili.domain.entity.RefreshTokenDetail">
         select
             *
         from
             t_refresh_token
         where refresh_token = #{refreshToken}
+    </select>
+
+    <select id="batchGetUserInfoByUserIds" resultType="com.bliliblili.domain.entity.UserInfo">
+        select
+        *
+        from
+        t_user_info
+        where
+        user_id in
+        <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </select>
+
+    <update id="updateUserLogin" parameterType="com.bliliblili.domain.entity.UserLogin">
+        update
+            t_user_login
+        set
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+
+            <if test="lastLoginTime != null">
+                last_login_time = #{lastLoginTime}
+            </if>
+        where
+            user_id = #{userId}
+    </update>
+
+
+    <insert id="addUserLogin">
+        insert into
+        t_user_login
+            (user_id, type, last_login_time)
+        values
+            (#{userId},#{type},#{lastLoginTime})
+    </insert>
+
+    <select id="getUserLoginByUserId" resultType="com.bliliblili.domain.entity.UserLogin">
+        select
+            *
+        from
+        t_user_login
+        where
+            user_id = #{userId}
     </select>
 
 </mapper>

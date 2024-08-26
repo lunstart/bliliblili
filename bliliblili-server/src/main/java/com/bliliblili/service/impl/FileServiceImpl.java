@@ -9,6 +9,7 @@ import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -56,5 +57,34 @@ public class FileServiceImpl implements FileService {
 
     public File getFileByMd5(String fileMd5) {
         return fileDao.getFileByMD5(fileMd5);
+    }
+
+
+    public void deleteFile(String filePath) {
+        fastDFSUtil.deleteFile(filePath);
+        fileDao.deleteFileMD5(filePath);
+    }
+
+
+    public String uploadFile(MultipartFile file,String fileMD5) throws Exception {
+        File dbFileMD5 = fileDao.getFileByMD5(fileMD5);
+        if(dbFileMD5 != null){
+            return dbFileMD5.getUrl();
+        }
+        String url = fastDFSUtil.uploadCommonFile(file);
+        if(!StringUtil.isNullOrEmpty(url)){
+            dbFileMD5 = new File();
+            dbFileMD5.setCreateTime(new Date());
+            dbFileMD5.setMd5(fileMD5);
+            dbFileMD5.setUrl(url);
+            dbFileMD5.setType(fastDFSUtil.getFileType(file));
+            fileDao.addFile(dbFileMD5);
+        }
+        return url;
+    }
+
+
+    public String getFileNameByUrl(String url) {
+        return fileDao.getFileNameByUrl(url);
     }
 }

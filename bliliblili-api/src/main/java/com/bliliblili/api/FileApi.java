@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,9 +26,19 @@ public class FileApi {
     private FileService fileService;
 
     @PostMapping("/md5files")
+    @ApiOperation("获取文件MD5")
     public JsonResponse<String> getFileMD5(MultipartFile file) throws Exception {
         String fileMD5 = fileService.getFileMD5(file);
         return new JsonResponse<>(fileMD5);
+    }
+
+    @PostMapping("file")
+    @ApiOperation("文件上传")
+    public JsonResponse<String> upload(MultipartFile file,String fileMD5) throws Exception {
+        log.info("开始上传");
+        String url = fileService.uploadFile(file,fileMD5);
+        log.info("上传成功，url={}", url);
+        return JsonResponse.success(url);
     }
 
     @PutMapping("/file-slices")
@@ -39,4 +50,12 @@ public class FileApi {
         return new JsonResponse<>(filePath);
     }
 
+    @DeleteMapping("/file-delete")
+    @ApiOperation("文件删除接口")
+    public JsonResponse<String> deleteFile(String filePath){
+        log.info("开始删除文件，文件路径：{}", filePath);
+        fileService.deleteFile(filePath);
+        log.info("文件删除成功");
+        return JsonResponse.success();
+    }
 }

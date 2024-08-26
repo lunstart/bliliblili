@@ -14,4 +14,8 @@ public interface FileDao {
     Integer addFile(File file);
 
     File getFileByMD5(String md5);
+
+    void deleteFileMD5(String filePath);
+
+    String getFileNameByUrl(String url);
 }
