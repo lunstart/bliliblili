@@ -1,7 +1,7 @@
 package com.bliliblili.api;
 
 import com.bliliblili.api.support.UserSupport;
-import com.bliliblili.dao.repository.VideoRepository;
+//import com.bliliblili.dao.repository.VideoRepository;
 import com.bliliblili.domain.dto.VideoCollectionDTO;
 import com.bliliblili.domain.entity.Video;
 import com.bliliblili.domain.entity.VideoCoin;
@@ -9,7 +9,7 @@ import com.bliliblili.domain.entity.VideoComment;
 import com.bliliblili.domain.entity.VideoView;
 import com.bliliblili.domain.jsonresponse.JsonResponse;
 import com.bliliblili.domain.jsonresponse.PageResult;
-import com.bliliblili.service.ElasticSearchService;
+//import com.bliliblili.service.ElasticSearchService;
 import com.bliliblili.service.VideoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,8 +39,8 @@ public class VideoApi {
     @Autowired
     private UserSupport userSupport;
 
-    @Autowired
-    private ElasticSearchService elasticSearchService;
+//    @Autowired
+//    private ElasticSearchService elasticSearchService;
 
     /**
      * 视频投稿
@@ -57,7 +57,7 @@ public class VideoApi {
         //添加视频到数据库
         videoService.addVideos(video);
         //添加视频到es
-        elasticSearchService.addVideo(video);
+        //elasticSearchService.addVideo(video);
         return JsonResponse.success();
     }
 
@@ -259,6 +259,7 @@ public class VideoApi {
     @PostMapping("/video-views")
     @ApiOperation("添加视频播放记录接口")
     public JsonResponse<String> addVideoView(@RequestBody VideoView videoView, HttpServletRequest request){
+        log.info("添加视频播放记录接口:{}",videoView.toString());
         Long userId;
         try{
             userId = userSupport.getCurrentUserId();

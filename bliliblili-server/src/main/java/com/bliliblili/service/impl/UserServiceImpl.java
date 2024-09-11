@@ -9,7 +9,6 @@ import com.bliliblili.domain.dto.LoginUserDTO;
 import com.bliliblili.domain.dto.RegisterUserDTO;
 import com.bliliblili.service.UserAuthService;
 import com.bliliblili.service.UserCoinService;
-import com.bliliblili.service.UserRoleService;
 import com.bliliblili.service.UserService;
 import com.bliliblili.service.util.MD5Util;
 import com.bliliblili.service.util.RSAUtil;
@@ -22,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.crypto.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -50,6 +48,8 @@ public class UserServiceImpl implements UserService {
      *
      * @param registerUserDTO
      */
+    //回滚
+    @Transactional
     public void addUser(RegisterUserDTO registerUserDTO) {
         //创建新的user,并将dto赋值给user
         User user = new User();
@@ -102,7 +102,9 @@ public class UserServiceImpl implements UserService {
         UserCoin userCoin = UserCoin
                 .builder()
                 .userId(user.getId())
-                .coin(UserCoinAmount.INIT_COIN)
+                .amount(UserCoinAmount.INIT_COIN)
+                .createTime(new Date())
+                .updateTime(new Date())
                 .build();
         userCoinService.addUserCoin(userCoin);
 

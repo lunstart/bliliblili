@@ -2,7 +2,6 @@ package com.bliliblili.domain.entity;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -21,7 +20,7 @@ public class UserCoin {
     private Long userId;
 
     //硬币数量
-    private Integer coin;
+    private Integer amount;
 
     // 创建时间
     private Date createTime;

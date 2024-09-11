@@ -3,7 +3,7 @@ package com.bliliblili.api;
 
 import com.bliliblili.domain.entity.Video;
 import com.bliliblili.domain.jsonresponse.JsonResponse;
-import com.bliliblili.service.ElasticSearchService;
+//import com.bliliblili.service.ElasticSearchService;
 import com.bliliblili.service.util.FastDFSUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +20,8 @@ public class TestApi {
     @Autowired
     private FastDFSUtil fastDFSUtil;
 
-    @Autowired
-    private ElasticSearchService elasticSearchService;
+//    @Autowired
+//    private ElasticSearchService elasticSearchService;
 
     @GetMapping("/test")
     @ApiOperation(value = "测试接口", notes = "测试接口")
@@ -37,10 +37,10 @@ public class TestApi {
         return JsonResponse.success("切片成功");
     }
 
-    @GetMapping("/es-videos")
-    @ApiOperation(value = "搜索视频", notes = "搜索视频")
-    public JsonResponse<Video> geEesVideos(@RequestParam String keyword) {
-        Video video = elasticSearchService.getVideos(keyword);
-        return new JsonResponse<>(video);
-    }
+//    @GetMapping("/es-videos")
+//    @ApiOperation(value = "搜索视频", notes = "搜索视频")
+//    public JsonResponse<Video> geEesVideos(@RequestParam String keyword) {
+//        Video video = elasticSearchService.getVideos(keyword);
+//        return new JsonResponse<>(video);
+//    }
 }
