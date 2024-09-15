@@ -9,6 +9,7 @@ import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.mysql.cj.util.StringUtils;
 import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,12 +24,15 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+
 /**
  * @ author 星星草去哪了
  * @ data 2024/5/12 14:06
  * @ 注释 fastdfs工具类
  */
 @Component
+@Slf4j
 public class FastDFSUtil {
 
     @Autowired
@@ -43,10 +47,13 @@ public class FastDFSUtil {
     @Autowired
     private FileService fileService;
 
+    //文件路径
     private static final String PATH_KEY = "path-key:";
 
+    //上传文件大小
     private static final String UPLOADED_SIZE_KEY = "uploaded-size-key:";
 
+    //上传文件序号
     private static final String UPLOADED_NO_KEY = "uploaded-no-key:";
 
     private static final String DEFAULT_GROUP = "group1";
@@ -126,6 +133,8 @@ public class FastDFSUtil {
                 throw new ConditionException("上传失败! ");
             }
             this.modifyAppenderFile(file, filePath, uploadedSize);
+            //更新上传序号
+            redisTemplate.opsForValue().increment(uploadedNoKey);
         }
         // 更新已上传文件大小
         uploadedSize += file.getSize();
@@ -133,6 +142,8 @@ public class FastDFSUtil {
         // 判断是否上传完成 清空redis里面相关的key和value
         String uploadedNoStr = redisTemplate.opsForValue().get(uploadedNoKey);
         Integer uploadedNo = Integer.valueOf(uploadedNoStr);
+        log.info("正在上传序号{} 共{}", uploadedNo, totalSliceNo);
+        log.info("url{}", redisTemplate.opsForValue().get(pathKey));
         String resultPath = "";
         if (uploadedNo.equals(totalSliceNo)) {
             resultPath = redisTemplate.opsForValue().get(pathKey);
@@ -144,18 +155,18 @@ public class FastDFSUtil {
 
     //文件删除
     public void deleteFile(String filePath) {
-        filePath = DEFAULT_GROUP +"/" + filePath;
+        filePath = DEFAULT_GROUP + "/" + filePath;
         fastFileStorageClient.deleteFile(filePath);
     }
 
     //文件分片测试
-    public void convertFileToSlices(MultipartFile multipartFile) throws Exception{
+    public void convertFileToSlices(MultipartFile multipartFile) throws Exception {
         String fileType = this.getFileType(multipartFile);
         //生成临时文件，将MultipartFile转为File
         File file = this.multipartFileToFile(multipartFile);
         long fileLength = file.length();
         int count = 1;
-        for(int i = 0; i < fileLength; i += SLICE_SIZE){
+        for (int i = 0; i < fileLength; i += SLICE_SIZE) {
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
             randomAccessFile.seek(i);
             byte[] bytes = new byte[SLICE_SIZE];
@@ -172,7 +183,7 @@ public class FastDFSUtil {
         file.delete();
     }
 
-    public File multipartFileToFile(MultipartFile multipartFile) throws Exception{
+    public File multipartFileToFile(MultipartFile multipartFile) throws Exception {
         String originalFileName = multipartFile.getOriginalFilename();
         String[] fileName = originalFileName.split("\\.");
         File file = File.createTempFile(fileName[0], "." + fileName[1]);
@@ -183,29 +194,29 @@ public class FastDFSUtil {
     public void viewVideoOnlineBySlices(HttpServletRequest request, HttpServletResponse response, String path) throws Exception {
         String filetype = fileService.getFileNameByUrl(path);
 
-       //查询文件信息
+        //查询文件信息
         FileInfo fileInfo = fastFileStorageClient.queryFileInfo(DEFAULT_GROUP, path);
 
         long totalFileSize = fileInfo.getFileSize();
         String url = fastDfsHttpStorageAddress + path;
         Enumeration<String> headerNames = request.getHeaderNames();
-        Map<String,Object> headers = new HashMap<>();
+        Map<String, Object> headers = new HashMap<>();
         while (headerNames.hasMoreElements()) {
             String header = headerNames.nextElement();
-            headers.put(header,request.getHeader(header));
+            headers.put(header, request.getHeader(header));
         }
         String rangeStr = request.getHeader("Range");
         String[] range;
-        if(StringUtil.isNullOrEmpty(rangeStr)){
-            rangeStr = "bytes=0-" + (totalFileSize-1);
+        if (StringUtil.isNullOrEmpty(rangeStr)) {
+            rangeStr = "bytes=0-" + (totalFileSize - 1);
         }
         range = rangeStr.split("bytes=|-");
         long begin = 0;
-        if(range.length >= 2){
+        if (range.length >= 2) {
             begin = Long.parseLong(range[1]);
         }
-        long end = totalFileSize-1;
-        if(range.length >= 3){
+        long end = totalFileSize - 1;
+        if (range.length >= 3) {
             end = Long.parseLong(range[2]);
         }
         long len = (end - begin) + 1;
@@ -213,8 +224,8 @@ public class FastDFSUtil {
         response.setHeader("Content-Range", contentRange);
         response.setHeader("Accept-Ranges", "bytes");
         response.setHeader("Content-Type", "video/" + filetype);
-        response.setContentLength((int)len);
+        response.setContentLength((int) len);
         response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-        HttpUtil.get(url, headers,response);
+        HttpUtil.get(url, headers, response);
     }
 }

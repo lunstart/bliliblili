@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 /**
  * @ author 星星草去哪了
  * @ data 2024/5/12 17:32
@@ -34,9 +36,9 @@ public class FileApi {
 
     @PostMapping("file")
     @ApiOperation("文件上传")
-    public JsonResponse<String> upload(MultipartFile file,String fileMD5) throws Exception {
+    public JsonResponse<String> upload(MultipartFile file, String fileMD5) throws Exception {
         log.info("开始上传");
-        String url = fileService.uploadFile(file,fileMD5);
+        String url = fileService.uploadFile(file, fileMD5);
         log.info("上传成功，url={}", url);
         return JsonResponse.success(url);
     }
@@ -48,11 +50,14 @@ public class FileApi {
         String filePath = fileService.uploadFileBySlices(slice, fileMd5, sliceNo, totalSliceNo);
         log.info("文件上传成功，文件路径为：{}", filePath);
         return new JsonResponse<>(filePath);
+//        String path = "D:\\Temp\\fileTest\\" + sliceNo + "-"+ totalSliceNo+"." + "mp4";
+//        slice.transferTo(new File(path));
+//        return new JsonResponse<>("111");
     }
 
     @DeleteMapping("/file-delete")
     @ApiOperation("文件删除接口")
-    public JsonResponse<String> deleteFile(String filePath){
+    public JsonResponse<String> deleteFile(String filePath) {
         log.info("开始删除文件，文件路径：{}", filePath);
         fileService.deleteFile(filePath);
         log.info("文件删除成功");
