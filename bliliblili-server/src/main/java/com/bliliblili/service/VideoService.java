@@ -1,14 +1,12 @@
 package com.bliliblili.service;
 
 import com.bliliblili.domain.dto.VideoCollectionDTO;
-import com.bliliblili.domain.entity.Video;
-import com.bliliblili.domain.entity.VideoCoin;
-import com.bliliblili.domain.entity.VideoComment;
-import com.bliliblili.domain.entity.VideoView;
+import com.bliliblili.domain.entity.*;
 import com.bliliblili.domain.jsonresponse.PageResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,4 +95,9 @@ public interface VideoService {
      * 获取视频播放量
      */
     Integer getVideoViewCount(Long videoId);
+
+    /**
+     * 获取视频标签
+     */
+    List<Tag> getVideoTagsByVideoId(Long videoId);
 }

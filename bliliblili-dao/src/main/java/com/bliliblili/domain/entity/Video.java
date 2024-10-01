@@ -46,6 +46,7 @@ public class Video {
     private String area;
 
     //标签列表
+    //冗余字段，方便查询
     private List<VideoTag> videoTagList;
 
     //简介

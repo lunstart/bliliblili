@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-
 /**
  * @ author 星星草去哪了
  * @ data 2024/5/12 17:32
@@ -34,7 +32,7 @@ public class FileApi {
         return new JsonResponse<>(fileMD5);
     }
 
-    @PostMapping("file")
+    @PostMapping("/file")
     @ApiOperation("文件上传")
     public JsonResponse<String> upload(MultipartFile file, String fileMD5) throws Exception {
         log.info("开始上传");

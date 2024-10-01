@@ -172,7 +172,7 @@
         t_video_comment
         where
         root_id in
-        <foreach collection="rootIdList" item="rootId" open="(" close=")" separator=",">
+        <foreach collection="parentIdList" item="rootId" open="(" close=")" separator=",">
             #{rootId}
         </foreach>
         order by id
@@ -209,4 +209,6 @@
         from t_video_view
         where video_id = #{videoId}
     </select>
+
+
 </mapper>

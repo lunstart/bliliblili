@@ -1,6 +1,7 @@
 package com.bliliblili.service.impl;
 
 import com.bliliblili.dao.VideoDao;
+import com.bliliblili.dao.VideoTagDao;
 import com.bliliblili.domain.dto.VideoCollectionDTO;
 import com.bliliblili.domain.entity.*;
 import com.bliliblili.domain.jsonresponse.PageResult;
@@ -31,6 +32,9 @@ public class VideoServiceImpl implements VideoService {
 
     @Autowired
     private VideoDao videoDao;
+
+    @Autowired
+    private VideoTagDao videoTagDao;
 
     @Autowired
     private FastDFSUtil fastDFSUtil;
@@ -210,9 +214,12 @@ public class VideoServiceImpl implements VideoService {
         params.put("limit", size);
         params.put("videoId", videoId);
         Integer total = videoDao.pageCountVideoComments(params);
+
         List<VideoComment> list = new ArrayList<>();
         if (total > 0) {
             list = videoDao.pageListVideoComments(params);
+            if(list.isEmpty()) return null;
+
             //批量查询二级评论
             List<Long> parentIdList = list.stream().map(VideoComment::getId).collect(Collectors.toList());
             List<VideoComment> childCommentList = videoDao.batchGetVideoCommentsByRootIds(parentIdList);
@@ -242,10 +249,14 @@ public class VideoServiceImpl implements VideoService {
     }
 
     public Map<String, Object> getVideoDetails(Long videoId) {
+        //视频详情
         Video video = videoDao.getVideoDetails(videoId);
         Long userId = video.getUserId();
+
+        //查询用户信息
         User user = userService.getUserByUserId(userId);
         UserInfo userInfo = user.getUserInfo();
+
         Map<String, Object> result = new HashMap<>();
         result.put("video", video);
         result.put("userInfo", userInfo);
@@ -283,5 +294,12 @@ public class VideoServiceImpl implements VideoService {
 
     public Integer getVideoViewCount(Long videoId) {
         return videoDao.getVideoViewCount(videoId);
+    }
+
+    @Override
+    public List<Tag> getVideoTagsByVideoId(Long videoId) {
+        //查询视频标签
+        List<Tag> videoTagList = videoTagDao.getVideoTagListByVideoId(videoId);
+        return videoTagList;
     }
 }

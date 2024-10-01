@@ -26,7 +26,7 @@ public class VideoComment {
     //根评论id
     private Long rootId;
 
-    //评论类型
+    //评论时间
     private Date createTime;
 
     //更新时间

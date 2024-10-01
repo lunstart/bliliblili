@@ -79,7 +79,12 @@ public class UserApi {
     @ApiOperation("用户注册")
     public JsonResponse<String> addUser(@RequestBody RegisterUserDTO registerUserDTO) {
         log.info("用户注册:{}", registerUserDTO);
-        userService.addUser(registerUserDTO);
+        try{
+            userService.addUser(registerUserDTO);
+        }catch (Error e){
+            return new JsonResponse<>("注册失败!");
+        }
+
         return JsonResponse.success();
     }
 

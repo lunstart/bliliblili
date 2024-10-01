@@ -1,7 +1,10 @@
 package com.bliliblili.dao;
 
 import com.bliliblili.domain.entity.Tag;
+import com.bliliblili.domain.entity.VideoTag;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @ author ljw
@@ -15,4 +18,8 @@ public interface VideoTagDao {
     void deleteVideoTag(Long tagId);
 
     Tag getTagByName(String name);
+
+    Integer getVideoByTagId(Long tagId);
+
+    List<Tag> getVideoTagListByVideoId(Long videoId);
 }

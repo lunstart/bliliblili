@@ -18,9 +18,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class UserSupport {
     public Long getCurrentUserId() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        //String token = requestAttributes.getRequest().getHeader("token");
         String token = requestAttributes.getRequest().getHeader("token");
-        String token0 = requestAttributes.getRequest().getHeader("token0");
-        token = token == null ? token0 : token;
+        for(int i = 0;i < 10;i++){
+            if(token != null) break;
+            token =requestAttributes.getRequest().getHeader("token" + i);
+        }
+        if(token == null) throw  new ConditionException("非法用户! ");
         //TODO
         //测试环境配置
         Long userId = TokenUtil.verifyToken(token);

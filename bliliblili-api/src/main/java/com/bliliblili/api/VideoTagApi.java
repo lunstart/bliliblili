@@ -44,4 +44,5 @@ public class VideoTagApi {
         videoTagService.deleteVideoTag(tagId);
         return JsonResponse.success();
     }
+
 }

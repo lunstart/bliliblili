@@ -3,10 +3,7 @@ package com.bliliblili.api;
 import com.bliliblili.api.support.UserSupport;
 //import com.bliliblili.dao.repository.VideoRepository;
 import com.bliliblili.domain.dto.VideoCollectionDTO;
-import com.bliliblili.domain.entity.Video;
-import com.bliliblili.domain.entity.VideoCoin;
-import com.bliliblili.domain.entity.VideoComment;
-import com.bliliblili.domain.entity.VideoView;
+import com.bliliblili.domain.entity.*;
 import com.bliliblili.domain.jsonresponse.JsonResponse;
 import com.bliliblili.domain.jsonresponse.PageResult;
 //import com.bliliblili.service.ElasticSearchService;
@@ -21,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.text.View;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -215,9 +213,6 @@ public class VideoApi {
 
     /**
      * 添加视频评论
-     *
-     * @param videoComment
-     * @return
      */
     @PostMapping("/video-comments")
     @ApiOperation("添加视频评论接口")
@@ -230,11 +225,6 @@ public class VideoApi {
 
     /**
      * 分页查询视频评论
-     *
-     * @param size
-     * @param no
-     * @param videoId
-     * @return
      */
     @GetMapping("/video-comments")
     @ApiOperation("分页查询视频评论接口")
@@ -245,9 +235,6 @@ public class VideoApi {
 
     /**
      * 获取视频详情
-     *
-     * @param videoId
-     * @return
      */
     @GetMapping("/video-details")
     @ApiOperation("获取视频详情接口")
@@ -258,23 +245,33 @@ public class VideoApi {
 
     @PostMapping("/video-views")
     @ApiOperation("添加视频播放记录接口")
-    public JsonResponse<String> addVideoView(@RequestBody VideoView videoView, HttpServletRequest request){
-        log.info("添加视频播放记录接口:{}",videoView.toString());
+    public JsonResponse<String> addVideoView(@RequestBody VideoView videoView, HttpServletRequest request) {
+        log.info("添加视频播放记录接口:{}", videoView.toString());
         Long userId;
-        try{
+        try {
             userId = userSupport.getCurrentUserId();
             videoView.setUserId(userId);
-            videoService.addVideoView(videoView,request);
-        }catch(Exception e){
-            videoService.addVideoView(videoView,request);
+            videoService.addVideoView(videoView, request);
+        } catch (Exception e) {
+            videoService.addVideoView(videoView, request);
         }
         return JsonResponse.success();
     }
 
     @GetMapping("/video-view-counts")
     @ApiOperation("获取视频播放数量接口")
-    public JsonResponse<Integer> getVideoViewCount(@RequestParam Long videoId){
+    public JsonResponse<Integer> getVideoViewCount(@RequestParam Long videoId) {
         Integer count = videoService.getVideoViewCount(videoId);
         return new JsonResponse<>(count);
+    }
+
+    /**
+     * 查询视频标签
+     */
+    @GetMapping("/video-tags")
+    @ApiOperation("查询视频标签接口")
+    public JsonResponse<List<Tag>> getVideoTagsByVideoId(@RequestParam Long videoId) {
+        List<Tag> list = videoService.getVideoTagsByVideoId(videoId);
+        return new JsonResponse<>(list);
     }
 }

@@ -5,16 +5,21 @@ import com.bliliblili.domain.entity.Video;
 import com.bliliblili.domain.jsonresponse.JsonResponse;
 //import com.bliliblili.service.ElasticSearchService;
 import com.bliliblili.service.util.FastDFSUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.websocket.server.PathParam;
+
 @RestController
 @Slf4j
+@Api(tags = "测试相关接口")
 public class TestApi {
 
     @Autowired
@@ -24,7 +29,7 @@ public class TestApi {
 //    private ElasticSearchService elasticSearchService;
 
     @GetMapping("/test")
-    @ApiOperation(value = "测试接口", notes = "测试接口")
+    @ApiOperation("get测试")
     public String test(){
         return "jrebol";
     }
@@ -35,6 +40,13 @@ public class TestApi {
         log.info("开始切片");
         fastDFSUtil.convertFileToSlices(file);
         return JsonResponse.success("切片成功");
+    }
+
+    @PostMapping("/test")
+    @ApiOperation("post测试")
+    public JsonResponse<String> postTest(String str){
+        log.info("post-test:{}",str);
+        return new JsonResponse<>(str);
     }
 
 //    @GetMapping("/es-videos")
